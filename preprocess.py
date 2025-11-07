@@ -7,37 +7,54 @@ import os
 import argparse
 
 
+# def tokenize_fn(examples, tokenizer, config):
+#     """Tokenize a batch of examples."""
+#     inputs = examples[config["datasets"]["train"]["columns"]["source"]]
+#     targets = examples[config["datasets"]["train"]["columns"]["target"]]
+#     src_langs = examples[config["datasets"]["train"]["columns"]["src_lang"]]
+#     tgt_langs = examples[config["datasets"]["train"]["columns"]["tgt_lang"]]
+
+#     input_ids, attention_masks, labels = [], [], []
+
+#     for src, tgt, src_lang, tgt_lang in zip(inputs, targets, src_langs, tgt_langs):
+#         tokenizer.src_lang = src_lang
+#         tokenizer.tgt_lang = tgt_lang
+
+#         tokenized = tokenizer(
+#             src,
+#             text_target=tgt,
+#             max_length=config["tokenization"]["max_length"],
+#             padding=config["tokenization"]["padding"],
+#             truncation=config["tokenization"]["truncation"],
+#             return_attention_mask=True,
+#         )
+
+#         input_ids.append(tokenized["input_ids"])
+#         attention_masks.append(tokenized["attention_mask"])
+#         labels.append(tokenized["labels"])
+
+#     return {
+#         "input_ids": input_ids,
+#         "labels": labels,
+#         "attention_mask": attention_masks,
+#     }
+
 def tokenize_fn(examples, tokenizer, config):
-    """Tokenize a batch of examples."""
-    inputs = examples[config["datasets"]["train"]["columns"]["source"]]
-    targets = examples[config["datasets"]["train"]["columns"]["target"]]
-    src_langs = examples[config["datasets"]["train"]["columns"]["src_lang"]]
-    tgt_langs = examples[config["datasets"]["train"]["columns"]["tgt_lang"]]
+    """Simple batched tokenizer wrapper compatible with existing calls."""
+    src_key = config["datasets"]["train"]["columns"]["source"]
+    tgt_key = config["datasets"]["train"]["columns"]["target"]
+    max_length = config.get("tokenization", {}).get("max_length", 512)
 
-    input_ids, attention_masks, labels = [], [], []
+    return tokenizer(
+        examples[src_key],
+        text_target=examples[tgt_key],
+        padding="max_length",
+        truncation=True,
+        max_length=max_length,
+    )
 
-    for src, tgt, src_lang, tgt_lang in zip(inputs, targets, src_langs, tgt_langs):
-        tokenizer.src_lang = src_lang
-        tokenizer.tgt_lang = tgt_lang
 
-        tokenized = tokenizer(
-            src,
-            text_target=tgt,
-            max_length=config["tokenization"]["max_length"],
-            padding=config["tokenization"]["padding"],
-            truncation=config["tokenization"]["truncation"],
-            return_attention_mask=True,
-        )
 
-        input_ids.append(tokenized["input_ids"])
-        attention_masks.append(tokenized["attention_mask"])
-        labels.append(tokenized["labels"])
-
-    return {
-        "input_ids": input_ids,
-        "labels": labels,
-        "attention_mask": attention_masks,
-    }
 
 
 def preprocess_data(config_path="config.yaml", output_dir="data/tokenized"):
@@ -59,10 +76,13 @@ def preprocess_data(config_path="config.yaml", output_dir="data/tokenized"):
     # valid_ds = valid_ds.filter(lambda example : example["src_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"] and example["tgt_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"])
     # valid_ds = valid_ds.shuffle(seed=42).select(range(0,10))
 
-    train_ds = train_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn")) 
-    valid_ds = valid_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn"))
+    # train_ds = train_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn")) 
+    # valid_ds = valid_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn"))
 
-    # Tokenize
+    train_ds = train_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi")) 
+    valid_ds = valid_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi"))
+
+    
     print("Tokenizing training data...")
     tokenized_train = train_ds.map(
         lambda x: tokenize_fn(x, tokenizer, config),
