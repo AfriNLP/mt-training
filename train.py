@@ -62,6 +62,8 @@ def main(config_path="config.yaml", processed_data_dir="data/tokenized"):
         eval_strategy=config.training.eval_strategy,
         eval_steps=config.training.eval_steps,
         save_strategy=config.training.save_strategy,
+        save_steps=config.training.save_steps,
+        save_total_limit=config.training.save_total_limit,
         load_best_model_at_end=True,
         metric_for_best_model="eval_loss",
         greater_is_better=False,
