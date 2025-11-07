@@ -6,3 +6,4 @@ pyyaml
 accelerate
 evaluate
 tensorboardX
+hf_transfer
