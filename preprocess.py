@@ -39,19 +39,6 @@ def tokenize_fn(examples, tokenizer, config):
         "attention_mask": attention_masks,
     }
 
-# def tokenize_fn(examples, tokenizer, config):
-#     """Simple batched tokenizer wrapper compatible with existing calls."""
-#     src_key = config["datasets"]["train"]["columns"]["source"]
-#     tgt_key = config["datasets"]["train"]["columns"]["target"]
-#     max_length = config.get("tokenization", {}).get("max_length", 512)
-
-#     return tokenizer(
-#         examples[src_key],
-#         text_target=examples[tgt_key],
-#         padding="max_length",
-#         truncation=True,
-#         max_length=max_length,
-#     )
 
 
 
@@ -69,18 +56,6 @@ def preprocess_data(config_path="config.yaml", output_dir="data/tokenized"):
     train_ds = load_dataset(config["datasets"]["train"]["name"], split=config["datasets"]["train"]["split"])
     valid_ds = load_dataset(config["datasets"]["validation"]["name"], split=config["datasets"]["validation"]["split"])
 
-
-    # # Test for small dataset
-    # train_ds = train_ds.filter(lambda example : example["src_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"] and example["tgt_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"])
-    # train_ds = train_ds.shuffle(seed=42).select(range(0,4000))
-    # valid_ds = valid_ds.filter(lambda example : example["src_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"] and example["tgt_lang"] in ["eng_Latn", "amh_Ethi", "swh_Latn"])
-    # valid_ds = valid_ds.shuffle(seed=42).select(range(0,10))
-
-    # train_ds = train_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn")) 
-    # valid_ds = valid_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi") or (example["src_lang"] == "amh_Ethi" and example["tgt_lang"] == "eng_Latn"))
-
-    # train_ds = train_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi")) 
-    # valid_ds = valid_ds.filter(lambda example: (example["src_lang"] == "eng_Latn" and example["tgt_lang"] == "amh_Ethi"))
 
     
     print("Tokenizing training data...")
