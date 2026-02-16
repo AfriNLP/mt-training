@@ -32,7 +32,7 @@ def main(config_path="config.yaml", processed_data_dir="data/tokenized"):
         device_map=config.model.device_map,
         use_cache=config.model.use_cache,
     )
-    # tokenizer = AutoTokenizer.from_pretrained(config.model.name)
+    tokenizer = AutoTokenizer.from_pretrained(config.model.name)
 
 
 
@@ -78,6 +78,7 @@ def main(config_path="config.yaml", processed_data_dir="data/tokenized"):
     # Trainer
     trainer = Seq2SeqTrainer(
         model=model,
+        tokenizer=tokenizer,
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=valid_dataset,
